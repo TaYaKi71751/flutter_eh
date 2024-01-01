@@ -29,7 +29,11 @@ class EHash {
     throw 'EHASH_NOT_FOUND_IN_EXHENTAI';
   }
 
-  static Future<String> fromEhentai(String gid) async {
+  static void handleCookieRequired(){
+    throw 'COOKIE_REQUIRED';
+  }
+
+  static Future<String> fromEhentaiList(String gid) async {
     if(asyncRequest == true) {
       await waitEHashLock(gid);
     } else {
@@ -66,12 +70,61 @@ class EHash {
       lockRequest = false;
     }
   }
-
-  static Future<String> fromExhentai(String gid) async {
+  static Future<String> fromEhentaiFavorites(String gid) async {
     if(asyncRequest == true) {
       await waitEHashLock(gid);
     } else {
       await waitRequestLock();
+    }
+    if(cookie.isEmpty || !(
+      cookie.contains('ipb_member_id=') && 
+      cookie.contains('ipb_pass_hash=')
+    )){
+      handleCookieRequired();
+    }
+    try {
+      lockEHash[gid] = true;
+      lockRequest = true;
+      if(notInEhentai[gid] == true) handleNotInEhentai(gid);
+      if(cacheEHashFromEhentai[gid] != null){
+        return cacheEHashFromEhentai[gid]!;
+      }
+      http.Response res = await http.get(
+        Uri.parse('https://e-hentai.org/favorites.php?next=${int.parse(gid) + 1}'),
+        headers: { 'Cookie': cookie }
+      );
+      String? url = parse(res.body)
+        .querySelector('[href*="/g/$gid"]')?.attributes['href'];
+      if(url?.isEmpty ?? true) handleNotInEhentai(gid);
+      String ehash = Uri.parse(url ?? '').path.split('/').lastWhere((e) => e.trim().isNotEmpty);
+      if(ehash.isEmpty) handleNotInEhentai(gid);
+      cacheEHashFromEhentai[gid] = ehash;
+      cacheEHashFromExhentai[gid] = ehash;
+      notInEhentai[gid] = false;
+      notInExhentai[gid] = false;
+      return ehash;
+    } catch(e) {
+      notInEhentai[gid] = true;
+      lockEHash[gid] = false;
+      lockRequest = false;
+      rethrow;
+    } finally {
+      lockEHash[gid] = false;
+      lockRequest = false;
+    }
+  }
+
+  static Future<String> fromExhentaiList(String gid) async {
+    if(asyncRequest == true) {
+      await waitEHashLock(gid);
+    } else {
+      await waitRequestLock();
+    }
+    if(cookie.isEmpty || !(
+      cookie.contains('ipb_member_id=') && 
+      cookie.contains('ipb_pass_hash=')
+    )){
+      handleCookieRequired();
     }
     try {
       lockEHash[gid] = true;
@@ -82,6 +135,47 @@ class EHash {
       }
       http.Response res = await http.get(
         Uri.parse('https://exhentai.org/?next=${int.parse(gid) + 1}'),
+        headers: { 'Cookie': cookie }
+      );
+      String? url = parse(res.body)
+        .querySelector('[href*="/g/$gid"]')?.attributes['href'];
+      if(url?.isEmpty ?? true) handleNotInExhentai(gid);
+      String ehash = Uri.parse(url ?? '').path.split('/').lastWhere((e) => e.trim().isNotEmpty);
+      if(ehash.isEmpty) handleNotInExhentai(gid);
+      cacheEHashFromExhentai[gid] = ehash;
+      notInExhentai[gid] = false;
+      return ehash;
+    } catch(e) {
+      notInExhentai[gid] = true;
+      lockEHash[gid] = false;
+      lockRequest = false;
+      rethrow;
+    } finally {
+      lockEHash[gid] = false;
+      lockRequest = false;
+    }
+  }
+  static Future<String> fromExhentaiFavorites(String gid) async {
+    if(asyncRequest == true) {
+      await waitEHashLock(gid);
+    } else {
+      await waitRequestLock();
+    }
+    if(cookie.isEmpty || !(
+      cookie.contains('ipb_member_id=') && 
+      cookie.contains('ipb_pass_hash=')
+    )){
+      handleCookieRequired();
+    }
+    try {
+      lockEHash[gid] = true;
+      lockRequest = true;
+      if(notInExhentai[gid] == true) handleNotInExhentai(gid);
+      if(cacheEHashFromExhentai[gid] != null){
+        return cacheEHashFromExhentai[gid]!;
+      }
+      http.Response res = await http.get(
+        Uri.parse('https://exhentai.org/favorites.php?next=${int.parse(gid) + 1}'),
         headers: { 'Cookie': cookie }
       );
       String? url = parse(res.body)
