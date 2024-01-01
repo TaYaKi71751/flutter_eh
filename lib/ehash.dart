@@ -43,7 +43,7 @@ class EHash {
       lockEHash[gid] = true;
       lockRequest = true;
       if(notInEhentai[gid] == true) handleNotInEhentai(gid);
-      if(cacheEHashFromEhentai[gid] != null){
+      if(cacheEHashFromEhentai[gid]?.isNotEmpty ?? false){
         return cacheEHashFromEhentai[gid]!;
       }
       http.Response res = await http.get(
@@ -86,7 +86,7 @@ class EHash {
       lockEHash[gid] = true;
       lockRequest = true;
       if(notInEhentai[gid] == true) handleNotInEhentai(gid);
-      if(cacheEHashFromEhentai[gid] != null){
+      if(cacheEHashFromEhentai[gid]?.isNotEmpty ?? false){
         return cacheEHashFromEhentai[gid]!;
       }
       http.Response res = await http.get(
@@ -130,7 +130,7 @@ class EHash {
       lockEHash[gid] = true;
       lockRequest = true;
       if(notInExhentai[gid] == true) handleNotInExhentai(gid);
-      if(cacheEHashFromExhentai[gid] != null){
+      if(cacheEHashFromExhentai[gid]?.isNotEmpty ?? false){
         return cacheEHashFromExhentai[gid]!;
       }
       http.Response res = await http.get(
@@ -171,7 +171,7 @@ class EHash {
       lockEHash[gid] = true;
       lockRequest = true;
       if(notInExhentai[gid] == true) handleNotInExhentai(gid);
-      if(cacheEHashFromExhentai[gid] != null){
+      if(cacheEHashFromExhentai[gid]?.isNotEmpty ?? false){
         return cacheEHashFromExhentai[gid]!;
       }
       http.Response res = await http.get(
